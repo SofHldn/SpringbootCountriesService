@@ -6,13 +6,16 @@ public class CountryDto {
     private String countryName;
     private String capitol;
     private double populationMillions;
+    private Long songId;
 
 
-    public CountryDto(String countryCode, String countryName, String capitol, double populationMillions) {
+    public CountryDto(String countryCode, String countryName, String capitol, double populationMillions, Long songId) {
         this.countryCode = countryCode;
         this.countryName = countryName;
         this.capitol = capitol;
         this.populationMillions = populationMillions;
+        this.songId = songId;
+
     }
 
     public String getCountryCode() {
@@ -47,6 +50,14 @@ public class CountryDto {
         this.populationMillions = populationMillions;
     }
 
+    public Long getSongId() {
+        return songId;
+    }
+
+    public void setSongId(Long songId) {
+        this.songId = songId;
+    }
+
     @Override
     public String toString() {
         return "CountryDto{" +
@@ -54,6 +65,9 @@ public class CountryDto {
                 ", countryName='" + countryName + '\'' +
                 ", capitol='" + capitol + '\'' +
                 ", populationMillions=" + populationMillions +
+                ", songId=" + songId +
                 '}';
     }
+
+
 }

@@ -18,7 +18,7 @@ public class TestService implements Service {
     public Optional<CountryDto> getOne(String countryCode) {
 
         if(countryCode.equals("AA"))
-            return Optional.of(new CountryDto("AA", "Test", "Test", 1));
+            return Optional.of(new CountryDto("AA", "Test", "Test", 1, 1L));
 
         return Optional.empty();
     }

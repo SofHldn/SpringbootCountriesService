@@ -8,6 +8,11 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
 import se.iths.springlab.dtos.CountryDto;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import javax.sound.midi.Patch;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +33,9 @@ class SpringlabApplicationTests {
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.add("Accept","application/xml");
 //        testClient.exchange("http://localhost:" + port + "/countries/", HttpMethod.GET, new HttpEntity<>(headers), CountryDto[].class);
+
+        initializeDatabase();
+
         var result = testClient.getForEntity("http://localhost:" + port + "/countries/", CountryDto[].class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody().length).isGreaterThan(0);
@@ -36,82 +44,106 @@ class SpringlabApplicationTests {
 
     @Test
     void contextLoadsGetOne() {
+        initializeDatabase();
 
 
-
-        CountryDto countryDto= new CountryDto("CC","testGetOne","testGetOne",1);
-        var result = testClient.getForEntity("http://localhost:" + port + "/countries/" +countryDto.getCountryCode(),CountryDto.class);
+        var result = testClient.getForEntity("http://localhost:" + port + "/countries/" +"cc",CountryDto.class);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(result.getBody().getCapitol()).isEqualTo("testGetOne");
+        assertThat(result.getBody().getCountryName()).isEqualTo("country");
+        assertThat(result.getBody().getCapitol()).isEqualTo("capitol");
+        assertThat(result.getBody().getPopulationMillions()).isEqualTo(1);
+        assertThat(result.getBody().getSongId()).isEqualTo(1L);
 
+
+
+    }
+
+    private void initializeDatabase() {
+        CountryDto countryDto = new CountryDto("tt", "test", "test", 1, 1L);
+        CountryDto countryDto1 = new CountryDto("cc", "country", "capitol", 1, 1L);
+        testClient.postForEntity("http://localhost:" + port + "/countries", countryDto, CountryDto.class);
+        testClient.postForEntity("http://localhost:" + port + "/countries", countryDto1, CountryDto.class);
     }
 
     @Test
     void contextLoadsPost() {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept","application/xml");
-        CountryDto countryDto= new CountryDto("CC","testPut","testPut",1);
+        CountryDto countryDto= new CountryDto("tp","testPost","testPost",1, 1L);
         var result=  testClient.postForEntity("http://localhost:"+port+"/countries", countryDto, CountryDto.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(result.getBody().getPopulationMillions()).isEqualTo(1);
 
-        //verify with a get request for person with id
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Accept","application/xml");
-//        SongDto songDto= new SongDto(1L,"t",2,"a");
-//        var res=  testClient.postForEntity("http://localhost:"+port+"/",songDto, SongDto.class);
-//        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        var resultGet = testClient.getForEntity("http://localhost:" + port + "/countries/" + countryDto.getCountryCode(),CountryDto.class);
+
+
+        assertThat(result.getBody().getCountryName()).isEqualTo("testPost");
+        assertThat(result.getBody().getCapitol()).isEqualTo("testPost");
+        assertThat(result.getBody().getPopulationMillions()).isEqualTo(1);
+        assertThat(result.getBody().getSongId()).isEqualTo(1L);
+
+
+
 
     }
 
     @Test
     void contextLoadsDelete() {
-        testClient.delete("http://localhost:" + port + "/countries/", "cc");
 
 
-//        @Test
-//        void deleteFromVarableTest() {​​
-//
-//            testClient.delete("http://localhost:"+port+"/songs/2");
-//            var res=  testClient.getForEntity("http://localhost:"+port+"/songs/2",SongDto.class);
-//            assertThat(res.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        CountryDto countryDto= new CountryDto("td","testDelete","testDelete",1, 1L);
+        testClient.postForEntity("http://localhost:"+port+"/countries", countryDto, CountryDto.class);
+
+        testClient.delete("http://localhost:" + port + "/countries/"+ countryDto.getCountryCode());
+
+
+        var result =  testClient.getForEntity("http://localhost:" + port + "/countries/" +countryDto.getCountryCode(),CountryDto.class);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
     }
 
 
 
     @Test
     void contextLoadsPut() {
-        CountryDto countryDto= new CountryDto("CC","testPut","testPut",1);
 
-        testClient.put("http://localhost:" + port + "/countries/" +countryDto.getCountryCode(),CountryDto.class);
+        CountryDto countryDto= new CountryDto("tp","testPut","testPut",1, 1L);
+        testClient.postForEntity("http://localhost:"+port+"/countries", countryDto, CountryDto.class);
 
 
-//        @Test
-//        void put() {​​
-//            SongDto songDto= new SongDto(1L,"t",2,"a");
-//            testClient.put("http://localhost:"+port+"/songs/put/1",songDto);
-//            var res=  testClient.getForEntity("http://localhost:"+port+"/songs/1",SongDto.class);
-//            assertThat(res.getBody().getTitle()).isEqualTo("t");
-//            assertThat(res.getBody().getArtist()).isEqualTo("a");
+        CountryDto updatedCountryDto= new CountryDto("tp","testPut1","testPut1",2, 2L);
+        testClient.put("http://localhost:" + port + "/countries/" +countryDto.getCountryCode(),updatedCountryDto, CountryDto.class);
+
+        var result = testClient.getForEntity("http://localhost:" + port + "/countries/" + countryDto.getCountryCode(),CountryDto.class);
+
+
+        assertThat(result.getBody().getCountryName()).isEqualTo(updatedCountryDto.getCountryName());
+        assertThat(result.getBody().getCapitol()).isEqualTo(updatedCountryDto.getCapitol());
+        assertThat(result.getBody().getPopulationMillions()).isEqualTo(updatedCountryDto.getPopulationMillions());
+        assertThat(result.getBody().getSongId()).isEqualTo(updatedCountryDto.getSongId());
+
 
 
         }
 
     @Test
     void contextLoadsPatch() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept","application/xml");
-        CountryDto countryDto= new CountryDto("CC","testPut","testPut",1);
-        var result = testClient.patchForObject("http://localhost:" + port + "/countries/",countryDto, CountryDto.class, "CC");
-        //testClient.exchange("http://localhost:" + port + "/countries/", HttpMethod.PATCH, headers, countryDto,"CC");
+
+        CountryDto countryDto= new CountryDto("tp","testPatch","testPatch",1, 1L);
+        testClient.postForEntity("http://localhost:"+port+"/countries", countryDto, CountryDto.class);
 
 
-        //ResponseEntity<CountryDto> responseEntity = testClient.getForEntity("http://localhost:" + port + "/countries/",CountryDto.class, "CC");
+        CountryDto updatedCountryDto= new CountryDto("tp","testPatch1","testPatch1",2, 2L);
+        testClient.patchForObject("http://localhost:" + port + "/countries/" +countryDto.getCountryCode(),updatedCountryDto, CountryDto.class);
+
+        var result = testClient.getForEntity("http://localhost:" + port + "/countries/" + countryDto.getCountryCode(),CountryDto.class);
 
 
-//        testClient.exchange("http://localhost:" + port + "/countries/", HttpMethod.GET, new HttpEntity<>(headers), CountryDto[].class);
+        assertThat(result.getBody().getCountryName()).isEqualTo(countryDto.getCountryName());
+        assertThat(result.getBody().getCapitol()).isEqualTo(countryDto.getCapitol());
+        assertThat(result.getBody().getPopulationMillions()).isEqualTo(updatedCountryDto.getPopulationMillions());
+        assertThat(result.getBody().getSongId()).isEqualTo(countryDto.getSongId());
+
+
 
     }
 

@@ -15,11 +15,11 @@ public class CountryMapper {
     }
 
     public CountryDto mapp(Country country){
-        return new CountryDto(country.getCountryCode(), country.getCountryName(), country.getCapitol(), country.getPopulationMillions());
+        return new CountryDto(country.getCountryCode(), country.getCountryName(), country.getCapitol(), country.getPopulationMillions(), country.getSongId());
     }
 
     public Country mapp(CountryDto countryDto){
-        return new Country(countryDto.getCountryCode(), countryDto.getCountryName(), countryDto.getCapitol(), countryDto.getPopulationMillions());
+        return new Country(countryDto.getCountryCode(), countryDto.getCountryName(), countryDto.getCapitol(), countryDto.getPopulationMillions(), countryDto.getSongId());
     }
 
     public Optional<CountryDto> mapp(Optional<Country> optionalCountry){

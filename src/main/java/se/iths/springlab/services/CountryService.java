@@ -70,6 +70,7 @@ public class CountryService implements se.iths.springlab.services.Service {
             updatedCountry.setCountryName(countryDto.getCountryName());
             updatedCountry.setCapitol(countryDto.getCapitol());
             updatedCountry.setPopulationMillions(countryDto.getPopulationMillions());
+            updatedCountry.setSongId(countryDto.getSongId());
             return countryMapper.mapp(countryRepository.save(updatedCountry));
         }else{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
